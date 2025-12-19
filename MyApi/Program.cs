@@ -26,7 +26,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API");
+        c.RoutePrefix = "swagger"; // 這會讓 Swagger 在 /swagger 運作
+    });
 }
 
 app.UseCors();

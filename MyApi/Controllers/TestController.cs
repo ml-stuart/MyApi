@@ -45,5 +45,46 @@ namespace MyApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0) return BadRequest("請選擇檔案");
+
+            var allowedExtensions = new[] { ".xlsx", ".xls", ".docx", ".doc" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension)) return BadRequest("不支援的格式");
+
+            // ---------------------------------------------------------
+            // 關鍵修改：從設定檔讀取路徑
+            // 如果設定檔沒寫，預設還是放在 App 目錄下的 Uploads (方便本機開發)
+            // ---------------------------------------------------------
+            var configuredPath = _configuration["FileStoragePath"];
+            var uploadPath = string.IsNullOrEmpty(configuredPath)
+                ? Path.Combine(Directory.GetCurrentDirectory(), "Uploads")
+                : configuredPath;
+
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            var trustedFileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var filePath = Path.Combine(uploadPath, trustedFileName);
+
+            try
+            {
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"存檔失敗: {ex.Message}");
+            }
+
+            return Ok(new { Message = "上傳成功", Path = filePath });
+        }
     }
 }
