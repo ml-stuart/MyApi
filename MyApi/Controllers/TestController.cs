@@ -13,7 +13,7 @@ namespace MyApi.Controllers
         {
             _configuration = configuration;
         }
-        [HttpGet("sql-connection")]
+        [HttpGet("postgresql-connection")]
         public IActionResult GetSqlConnection()
         {
             var connString = _configuration.GetConnectionString("DefaultConnection");
