@@ -29,7 +29,7 @@ import axios from 'axios'
 const weather = ref([])
 const loadWeather = async () => {
   try {
-    const res = await axios.get('https://localhost:44319/WeatherForecast')
+    const res = await axios.get('https://k8s.mxlab.space:30420/api/WeatherForecast')
     console.log(res.data)  // ✅ 先在 console 印出看看
     weather.value = res.data
   } catch (err) {
